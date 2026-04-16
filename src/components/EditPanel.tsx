@@ -49,7 +49,7 @@ export default function EditPanel({ selectedElement, onUpdate, onClose }: EditPa
         <div className="w-10 h-1 bg-[#333] rounded-[2px] mx-auto mt-2 md:mt-3 mb-1 md:mb-2" />
         
         {/* Tabs Header */}
-        <div className="flex items-center border-b border-white/5 px-2 md:px-4">
+        <div className="flex items-center border-b border-white/5 px-4 md:px-8">
           <div className="flex-1 flex overflow-x-auto no-scrollbar">
             {tabs.map((tab) => (
               <button
@@ -75,7 +75,7 @@ export default function EditPanel({ selectedElement, onUpdate, onClose }: EditPa
           </button>
         </div>
 
-        <div className="px-5 py-4 md:px-6 md:py-6 h-[220px] md:h-[320px] overflow-y-auto custom-scrollbar">
+        <div className="px-8 py-4 md:px-10 md:py-6 h-[220px] md:h-[320px] overflow-y-auto custom-scrollbar">
           {activeTab === 'fonte' ? (
             <FontTab element={selectedElement} onUpdate={onUpdate} />
           ) : activeTab === 'cor' ? (
@@ -116,12 +116,12 @@ function FontTab({ element, onUpdate }: { element: TextElement; onUpdate: (attrs
   return (
     <div className="space-y-6">
       {/* Font Family Selector */}
-      <div className="space-y-3 relative mb-6" ref={dropdownRef}>
-        <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] mb-2 block">Fontes</label>
+      <div className="space-y-5 relative mb-10" ref={dropdownRef}>
+        <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] mb-4 block">Fontes</label>
         
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full bg-[#1a1a1a] border border-border rounded-xl px-3 md:px-4 py-2.5 md:py-3 flex items-center justify-between hover:border-accent transition-colors text-sm cursor-pointer mt-1"
+          className="w-full bg-[#1a1a1a] border border-border rounded-xl px-3 md:px-4 py-2.5 md:py-3 flex items-center justify-between hover:border-accent transition-colors text-sm cursor-pointer mt-3"
         >
           <span style={{ fontFamily: currentFont.value }}>{currentFont.name}</span>
           <ChevronDown size={16} className={cn("text-text-muted transition-transform duration-200", isOpen && "rotate-180")} />
@@ -162,13 +162,13 @@ function FontTab({ element, onUpdate }: { element: TextElement; onUpdate: (attrs
         </AnimatePresence>
       </div>
 
-      <div className="grid grid-cols-2 gap-5 md:gap-6 mb-6">
+      <div className="grid grid-cols-2 gap-5 md:gap-6 mb-10">
         {/* Font Size */}
-        <div className="space-y-3">
-          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] flex justify-between mb-2">
+        <div className="space-y-5">
+          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] flex justify-between mb-4">
             Tamanho <span>{Math.round(element.fontSize)}px</span>
           </label>
-          <div className="mt-1">
+          <div className="mt-3">
             <Slider
               min={10}
               max={200}
@@ -179,9 +179,9 @@ function FontTab({ element, onUpdate }: { element: TextElement; onUpdate: (attrs
         </div>
 
         {/* Alignment */}
-        <div className="space-y-3">
-          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] mb-2 block">Alinhamento</label>
-          <div className="flex bg-[#1a1a1a] rounded-lg p-1 border border-border mt-1">
+        <div className="space-y-5">
+          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] mb-4 block">Alinhamento</label>
+          <div className="flex bg-[#1a1a1a] rounded-lg p-1 border border-border mt-3">
             <button 
               onClick={() => onUpdate({ align: 'left' })}
               className={cn("flex-1 p-1.5 md:p-2 rounded transition-colors", element.align === 'left' ? "bg-accent text-black" : "text-white/60 hover:bg-white/5")}
@@ -206,11 +206,11 @@ function FontTab({ element, onUpdate }: { element: TextElement; onUpdate: (attrs
 
       <div className="grid grid-cols-2 gap-5 md:gap-6">
         {/* Letter Spacing */}
-        <div className="space-y-3">
-          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] flex justify-between mb-2">
+        <div className="space-y-5">
+          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] flex justify-between mb-4">
             Espaçamento <span>{element.letterSpacing}</span>
           </label>
-          <div className="mt-1">
+          <div className="mt-3">
             <Slider
               min={-10}
               max={50}
@@ -221,11 +221,11 @@ function FontTab({ element, onUpdate }: { element: TextElement; onUpdate: (attrs
         </div>
 
         {/* Line Height */}
-        <div className="space-y-3">
-          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] flex justify-between mb-2">
+        <div className="space-y-5">
+          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] flex justify-between mb-4">
             Altura da Linha <span>{element.lineHeight.toFixed(1)}</span>
           </label>
-          <div className="mt-1">
+          <div className="mt-3">
             <Slider
               min={0.5}
               max={3}

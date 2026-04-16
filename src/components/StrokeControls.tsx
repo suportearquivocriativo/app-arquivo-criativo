@@ -51,13 +51,15 @@ export default function StrokeControls({ element, onUpdate }: StrokeControlsProp
 
   return (
     <div className="space-y-6">
-      <SaturationBrightnessPicker 
-        hsv={hsv} 
-        onChange={handleColorChange} 
-        onEnd={handleEndDrag}
-      />
+      <div>
+        <SaturationBrightnessPicker 
+          hsv={hsv} 
+          onChange={handleColorChange} 
+          onEnd={handleEndDrag}
+        />
+      </div>
 
-      <div className="pt-2">
+      <div className="mb-10">
         <HueSlider 
           h={hsv.h} 
           onChange={(h) => handleColorChange({ ...hsv, h })} 
@@ -65,10 +67,10 @@ export default function StrokeControls({ element, onUpdate }: StrokeControlsProp
         />
       </div>
 
-      <div className="flex items-center justify-between gap-5 max-w-full overflow-hidden mb-2">
-        <div className="space-y-3">
-          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] mb-2 block">Cor (HEX)</label>
-          <div className="flex items-center gap-2 mt-1">
+      <div className="flex items-center justify-between gap-5 max-w-full overflow-hidden mb-10">
+        <div className="space-y-5">
+          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] mb-4 block">Cor (HEX)</label>
+          <div className="flex items-center gap-2 mt-3">
             <div 
               className="w-8 h-8 md:w-10 md:h-10 rounded-lg shadow-inner shrink-0"
               style={{ backgroundColor: element.stroke }}
@@ -89,9 +91,9 @@ export default function StrokeControls({ element, onUpdate }: StrokeControlsProp
           </div>
         </div>
 
-        <div className="space-y-3">
-          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] mb-2 block text-left">Cores Recentes</label>
-          <div className="mt-1">
+        <div className="space-y-5">
+          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] mb-4 block text-left">Cores Recentes</label>
+          <div className="mt-3">
             <ColorPalette 
               colors={recentColors} 
               selectedColor={element.stroke} 
@@ -104,14 +106,14 @@ export default function StrokeControls({ element, onUpdate }: StrokeControlsProp
         </div>
       </div>
 
-      <div className="space-y-3 pt-2">
-        <div className="flex justify-between items-center mb-2">
+      <div className="space-y-5 pt-2">
+        <div className="flex justify-between items-center mb-4">
           <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Espessura</label>
           <span className="text-[10px] font-mono">
             {element.strokeWidth}px
           </span>
         </div>
-        <div className="mt-1">
+        <div className="mt-3">
           <Slider
             min={0}
             max={100}
