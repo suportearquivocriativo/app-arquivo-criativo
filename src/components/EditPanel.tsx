@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { X, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
+import { X, AlignLeft, AlignCenter, AlignRight, ChevronDown } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { TextElement, TabId } from '../types';
 import { cn } from '../lib/utils';
@@ -7,6 +7,7 @@ import ColorControls from './ColorControls';
 import StrokeControls from './StrokeControls';
 import ShadowControls from './ShadowControls';
 import BackgroundControls from './BackgroundControls';
+import Slider from './ui/Slider';
 
 interface EditPanelProps {
   selectedElement: TextElement | null;
@@ -97,22 +98,68 @@ export default function EditPanel({ selectedElement, onUpdate, onClose }: EditPa
 }
 
 function FontTab({ element, onUpdate }: { element: TextElement; onUpdate: (attrs: Partial<TextElement>) => void }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const currentFont = FONTS.find(f => f.value === element.fontFamily) || FONTS[0];
+
   return (
     <div className="space-y-4 md:space-y-6">
       {/* Font Family Selector */}
-      <div className="space-y-2">
+      <div className="space-y-2 relative" ref={dropdownRef}>
         <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Fontes</label>
-        <select
-          value={element.fontFamily}
-          onChange={(e) => onUpdate({ fontFamily: e.target.value })}
-          className="w-full bg-[#1a1a1a] border border-border rounded-xl px-3 md:px-4 py-2.5 md:py-3 focus:outline-none focus:border-accent transition-colors text-sm appearance-none cursor-pointer"
+        
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full bg-[#1a1a1a] border border-border rounded-xl px-3 md:px-4 py-2.5 md:py-3 flex items-center justify-between hover:border-accent transition-colors text-sm cursor-pointer"
         >
-          {FONTS.map((f) => (
-            <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
-              {f.name}
-            </option>
-          ))}
-        </select>
+          <span style={{ fontFamily: currentFont.value }}>{currentFont.name}</span>
+          <ChevronDown size={16} className={cn("text-text-muted transition-transform duration-200", isOpen && "rotate-180")} />
+        </button>
+
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="absolute top-full left-0 right-0 mt-2 bg-[#111111] border border-border rounded-xl shadow-2xl z-[60] overflow-hidden"
+            >
+              <div className="max-h-[200px] overflow-y-auto custom-scrollbar py-2">
+                {FONTS.map((f) => (
+                  <button
+                    key={f.value}
+                    onClick={() => {
+                      onUpdate({ fontFamily: f.value });
+                      setIsOpen(false);
+                    }}
+                    className={cn(
+                      "w-full px-4 py-3 text-left transition-colors hover:bg-white/5 flex items-center justify-between",
+                      element.fontFamily === f.value ? "text-accent" : "text-white"
+                    )}
+                  >
+                    <span style={{ fontFamily: f.value }} className="text-base md:text-lg">
+                      {f.name}
+                    </span>
+                    {element.fontFamily === f.value && (
+                      <div className="w-1.5 h-1.5 rounded-full bg-accent" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <div className="grid grid-cols-2 gap-4 md:gap-6">
@@ -121,13 +168,11 @@ function FontTab({ element, onUpdate }: { element: TextElement; onUpdate: (attrs
           <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] flex justify-between">
             Tamanho <span>{Math.round(element.fontSize)}px</span>
           </label>
-          <input
-            type="range"
-            min="10"
-            max="200"
+          <Slider
+            min={10}
+            max={200}
             value={element.fontSize}
-            onChange={(e) => onUpdate({ fontSize: parseInt(e.target.value) })}
-            className="w-full accent-accent h-1"
+            onChange={(val) => onUpdate({ fontSize: val })}
           />
         </div>
 
@@ -163,13 +208,11 @@ function FontTab({ element, onUpdate }: { element: TextElement; onUpdate: (attrs
           <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] flex justify-between">
             Espaçamento <span>{element.letterSpacing}</span>
           </label>
-          <input
-            type="range"
-            min="-10"
-            max="50"
+          <Slider
+            min={-10}
+            max={50}
             value={element.letterSpacing}
-            onChange={(e) => onUpdate({ letterSpacing: parseInt(e.target.value) })}
-            className="w-full accent-accent h-1"
+            onChange={(val) => onUpdate({ letterSpacing: val })}
           />
         </div>
 
@@ -178,14 +221,12 @@ function FontTab({ element, onUpdate }: { element: TextElement; onUpdate: (attrs
           <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] flex justify-between">
             Altura da Linha <span>{element.lineHeight.toFixed(1)}</span>
           </label>
-          <input
-            type="range"
-            min="0.5"
-            max="3"
-            step="0.1"
+          <Slider
+            min={0.5}
+            max={3}
+            step={0.1}
             value={element.lineHeight}
-            onChange={(e) => onUpdate({ lineHeight: parseFloat(e.target.value) })}
-            className="w-full accent-accent h-1"
+            onChange={(val) => onUpdate({ lineHeight: val })}
           />
         </div>
       </div>

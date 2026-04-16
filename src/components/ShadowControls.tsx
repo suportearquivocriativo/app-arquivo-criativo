@@ -3,6 +3,7 @@ import { TextElement } from '../types';
 import { HSV, hexToHsv, hsvToHex, isValidHex } from '../lib/colorUtils';
 import { cn } from '../lib/utils';
 import { SaturationBrightnessPicker, HueSlider } from './ColorControls';
+import Slider from './ui/Slider';
 
 interface ShadowControlsProps {
   element: TextElement;
@@ -20,7 +21,7 @@ export default function ShadowControls({ element, onUpdate }: ShadowControlsProp
   const [hexInput, setHexInput] = useState(element.shadowColor || '#000000');
   const [recentColors, setRecentColors] = useState<string[]>(() => {
     const saved = localStorage.getItem('recentShadowColors');
-    return saved ? JSON.parse(saved) : DEFAULT_COLORS.slice(0, 10);
+    return saved ? JSON.parse(saved) : DEFAULT_COLORS.slice(0, 5);
   });
 
   useEffect(() => {
@@ -32,7 +33,7 @@ export default function ShadowControls({ element, onUpdate }: ShadowControlsProp
   const addToRecent = useCallback((hex: string) => {
     setRecentColors(prev => {
       const filtered = prev.filter(c => c !== hex);
-      const updated = [hex, ...filtered].slice(0, 10);
+      const updated = [hex, ...filtered].slice(0, 5);
       localStorage.setItem('recentShadowColors', JSON.stringify(updated));
       return updated;
     });
@@ -63,12 +64,12 @@ export default function ShadowControls({ element, onUpdate }: ShadowControlsProp
         onEnd={handleEndDrag}
       />
 
-      <div className="grid grid-cols-[auto_1fr] gap-4 md:gap-6 items-end">
-        <div className="space-y-2">
-          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Cor da Sombra</label>
-          <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between gap-4 max-w-full overflow-hidden">
+        <div className="space-y-1.5">
+          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Cor (HEX)</label>
+          <div className="flex items-center gap-2">
             <div 
-              className="w-8 h-8 md:w-10 md:h-10 rounded-lg border border-white/10 shadow-inner"
+              className="w-8 h-8 md:w-10 md:h-10 rounded-lg shadow-inner shrink-0"
               style={{ backgroundColor: element.shadowColor }}
             />
             <input
@@ -82,14 +83,14 @@ export default function ShadowControls({ element, onUpdate }: ShadowControlsProp
                   addToRecent(val);
                 }
               }}
-              className="w-20 md:w-24 h-8 md:h-10 bg-[#1a1a1a] border border-border rounded-lg px-2 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:outline-none focus:border-accent transition-colors uppercase"
+              className="w-18 md:w-22 h-8 md:h-10 bg-[#1a1a1a] border border-border rounded-lg px-2 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:outline-none focus:border-accent transition-colors uppercase"
             />
           </div>
         </div>
 
-        <div className="space-y-2 flex-1">
+        <div className="space-y-1.5">
           <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Cores Recentes</label>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-1.5">
             {recentColors.slice(0, 5).map((color, i) => (
               <button
                 key={`${color}-${i}`}
@@ -98,8 +99,8 @@ export default function ShadowControls({ element, onUpdate }: ShadowControlsProp
                   addToRecent(color);
                 }}
                 className={cn(
-                  "w-8 h-8 md:w-10 md:h-10 rounded-lg border border-white/5 transition-transform active:scale-90",
-                  element.shadowColor === color && "ring-2 ring-accent ring-offset-2 ring-offset-[#111]"
+                  "w-8 h-8 md:w-10 md:h-10 rounded-lg transition-transform active:scale-90",
+                  element.shadowColor === color ? "scale-110 z-10" : "hover:scale-105"
                 )}
                 style={{ backgroundColor: color }}
               />
@@ -114,14 +115,11 @@ export default function ShadowControls({ element, onUpdate }: ShadowControlsProp
             <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Desfoque</label>
             <span className="text-[10px] font-mono">{element.shadowBlur}px</span>
           </div>
-          <input
-            type="range"
-            min="0"
-            max="50"
-            step="1"
+          <Slider
+            min={0}
+            max={50}
             value={element.shadowBlur}
-            onChange={(e) => onUpdate({ shadowBlur: parseInt(e.target.value) })}
-            className="w-full accent-accent h-1"
+            onChange={(val) => onUpdate({ shadowBlur: val })}
           />
         </div>
 
@@ -130,14 +128,12 @@ export default function ShadowControls({ element, onUpdate }: ShadowControlsProp
             <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Opacidade</label>
             <span className="text-[10px] font-mono">{Math.round(element.shadowOpacity * 100)}%</span>
           </div>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
+          <Slider
+            min={0}
+            max={1}
+            step={0.01}
             value={element.shadowOpacity}
-            onChange={(e) => onUpdate({ shadowOpacity: parseFloat(e.target.value) })}
-            className="w-full accent-accent h-1"
+            onChange={(val) => onUpdate({ shadowOpacity: val })}
           />
         </div>
       </div>
@@ -148,14 +144,11 @@ export default function ShadowControls({ element, onUpdate }: ShadowControlsProp
             <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Posição X</label>
             <span className="text-[10px] font-mono">{element.shadowOffsetX}px</span>
           </div>
-          <input
-            type="range"
-            min="-50"
-            max="50"
-            step="1"
+          <Slider
+            min={-50}
+            max={50}
             value={element.shadowOffsetX}
-            onChange={(e) => onUpdate({ shadowOffsetX: parseInt(e.target.value) })}
-            className="w-full accent-accent h-1"
+            onChange={(val) => onUpdate({ shadowOffsetX: val })}
           />
         </div>
 
@@ -164,14 +157,11 @@ export default function ShadowControls({ element, onUpdate }: ShadowControlsProp
             <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Posição Y</label>
             <span className="text-[10px] font-mono">{element.shadowOffsetY}px</span>
           </div>
-          <input
-            type="range"
-            min="-50"
-            max="50"
-            step="1"
+          <Slider
+            min={-50}
+            max={50}
             value={element.shadowOffsetY}
-            onChange={(e) => onUpdate({ shadowOffsetY: parseInt(e.target.value) })}
-            className="w-full accent-accent h-1"
+            onChange={(val) => onUpdate({ shadowOffsetY: val })}
           />
         </div>
       </div>
