@@ -183,23 +183,25 @@ export default function ColorControls({ element, onUpdate }: ColorControlsProps)
   };
 
   return (
-    <div className="space-y-4 md:space-y-6">
+    <div className="space-y-6">
       <SaturationBrightnessPicker 
         hsv={hsv} 
         onChange={handleColorChange} 
         onEnd={handleEndDrag}
       />
 
-      <HueSlider 
-        h={hsv.h} 
-        onChange={(h) => handleColorChange({ ...hsv, h })} 
-        onEnd={handleEndDrag}
-      />
+      <div className="pt-2">
+        <HueSlider 
+          h={hsv.h} 
+          onChange={(h) => handleColorChange({ ...hsv, h })} 
+          onEnd={handleEndDrag}
+        />
+      </div>
 
-      <div className="flex items-center justify-between gap-4 max-w-full overflow-hidden">
-        <div className="space-y-1.5">
-          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Cor (HEX)</label>
-          <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between gap-4 max-w-full overflow-hidden mb-2">
+        <div className="space-y-3">
+          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] mb-2 block">Cor (HEX)</label>
+          <div className="flex items-center gap-2 mt-1">
             <div 
               className="w-8 h-8 md:w-10 md:h-10 rounded-lg shadow-inner shrink-0"
               style={{ backgroundColor: element.fill }}
@@ -220,31 +222,35 @@ export default function ColorControls({ element, onUpdate }: ColorControlsProps)
           </div>
         </div>
 
-        <div className="space-y-1.5">
-          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Cores Recentes</label>
-          <ColorPalette 
-            colors={recentColors} 
-            selectedColor={element.fill} 
-            onSelect={(color) => {
-              onUpdate({ fill: color });
-              addToRecent(color);
-            }}
-          />
+        <div className="space-y-3">
+          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] mb-2 block text-left">Cores Recentes</label>
+          <div className="mt-1">
+            <ColorPalette 
+              colors={recentColors} 
+              selectedColor={element.fill} 
+              onSelect={(color) => {
+                onUpdate({ fill: color });
+                addToRecent(color);
+              }}
+            />
+          </div>
         </div>
       </div>
 
-      <div className="space-y-2">
-        <div className="flex justify-between items-center">
+      <div className="space-y-3 pt-2">
+        <div className="flex justify-between items-center mb-2">
           <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Opacidade</label>
           <span className="text-[10px] font-mono">{Math.round(element.opacity * 100)}%</span>
         </div>
-        <Slider
-          min={0}
-          max={1}
-          step={0.01}
-          value={element.opacity}
-          onChange={(val) => onUpdate({ opacity: val })}
-        />
+        <div className="mt-1">
+          <Slider
+            min={0}
+            max={1}
+            step={0.01}
+            value={element.opacity}
+            onChange={(val) => onUpdate({ opacity: val })}
+          />
+        </div>
       </div>
     </div>
   );

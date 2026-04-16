@@ -51,23 +51,25 @@ export default function BackgroundControls({ element, onUpdate }: BackgroundCont
   };
 
   return (
-    <div className="space-y-4 md:space-y-6">
+    <div className="space-y-6">
       <SaturationBrightnessPicker 
         hsv={hsv} 
         onChange={handleColorChange} 
         onEnd={handleEndDrag}
       />
 
-      <HueSlider 
-        h={hsv.h} 
-        onChange={(h) => handleColorChange({ ...hsv, h })} 
-        onEnd={handleEndDrag}
-      />
+      <div className="pt-2">
+        <HueSlider 
+          h={hsv.h} 
+          onChange={(h) => handleColorChange({ ...hsv, h })} 
+          onEnd={handleEndDrag}
+        />
+      </div>
 
-      <div className="flex items-center justify-between gap-4 max-w-full overflow-hidden">
-        <div className="space-y-1.5">
-          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Cor (HEX)</label>
-          <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between gap-5 max-w-full overflow-hidden mb-2">
+        <div className="space-y-3">
+          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] mb-2 block">Cor (HEX)</label>
+          <div className="flex items-center gap-2 mt-1">
             <div 
               className="w-8 h-8 md:w-10 md:h-10 rounded-lg shadow-inner shrink-0"
               style={{ backgroundColor: element.backgroundColor }}
@@ -88,9 +90,10 @@ export default function BackgroundControls({ element, onUpdate }: BackgroundCont
           </div>
         </div>
 
-        <div className="space-y-1.5">
-          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Cores Recentes</label>
-          <div className="flex items-center gap-1.5">
+        <div className="space-y-3">
+          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] mb-2 block text-left">Cores Recentes</label>
+          <div className="mt-1">
+            <div className="flex items-center gap-1.5">
             {recentColors.map((color, i) => (
               <button
                 key={`${color}-${i}`}
@@ -108,60 +111,69 @@ export default function BackgroundControls({ element, onUpdate }: BackgroundCont
           </div>
         </div>
       </div>
+    </div>
 
-      <div className="space-y-2">
-        <div className="flex justify-between items-center">
+      <div className="space-y-3 pt-2">
+        <div className="flex justify-between items-center mb-2">
           <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Opacidade</label>
           <span className="text-[10px] font-mono">{Math.round(element.backgroundOpacity * 100)}%</span>
         </div>
-        <Slider
-          min={0}
-          max={1}
-          step={0.01}
-          value={element.backgroundOpacity}
-          onChange={(val) => onUpdate({ backgroundOpacity: val })}
-        />
+        <div className="mt-1">
+          <Slider
+            min={0}
+            max={1}
+            step={0.01}
+            value={element.backgroundOpacity}
+            onChange={(val) => onUpdate({ backgroundOpacity: val })}
+          />
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 md:gap-6">
-        <div className="space-y-2">
-          <div className="flex justify-between items-center">
+      <div className="grid grid-cols-2 gap-5 md:gap-6 mb-2">
+        <div className="space-y-3">
+          <div className="flex justify-between items-center mb-2">
             <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Padding Horizontal</label>
             <span className="text-[10px] font-mono">{element.paddingX}px</span>
           </div>
-          <Slider
-            min={0}
-            max={100}
-            value={element.paddingX}
-            onChange={(val) => onUpdate({ paddingX: val })}
-          />
+          <div className="mt-1">
+            <Slider
+              min={0}
+              max={100}
+              value={element.paddingX}
+              onChange={(val) => onUpdate({ paddingX: val })}
+            />
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <div className="flex justify-between items-center">
+        <div className="space-y-3">
+          <div className="flex justify-between items-center mb-2">
             <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Padding Vertical</label>
             <span className="text-[10px] font-mono">{element.paddingY}px</span>
           </div>
-          <Slider
-            min={0}
-            max={100}
-            value={element.paddingY}
-            onChange={(val) => onUpdate({ paddingY: val })}
-          />
+          <div className="mt-1">
+            <Slider
+              min={0}
+              max={100}
+              value={element.paddingY}
+              onChange={(val) => onUpdate({ paddingY: val })}
+            />
+          </div>
         </div>
       </div>
 
-      <div className="space-y-2">
-        <div className="flex justify-between items-center">
+      <div className="space-y-3">
+        <div className="flex justify-between items-center mb-2">
           <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Arredondamento</label>
           <span className="text-[10px] font-mono">{element.borderRadius}px</span>
         </div>
-        <Slider
-          min={0}
-          max={50}
-          value={element.borderRadius}
-          onChange={(val) => onUpdate({ borderRadius: val })}
-        />
+        <div className="mt-1">
+          <Slider
+            min={0}
+            max={50}
+            value={element.borderRadius}
+            onChange={(val) => onUpdate({ borderRadius: val })}
+          />
+        </div>
       </div>
     </div>
   );

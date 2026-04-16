@@ -75,7 +75,7 @@ export default function EditPanel({ selectedElement, onUpdate, onClose }: EditPa
           </button>
         </div>
 
-        <div className="p-4 md:p-6 h-[220px] md:h-[320px] overflow-y-auto custom-scrollbar">
+        <div className="px-5 py-4 md:px-6 md:py-6 h-[220px] md:h-[320px] overflow-y-auto custom-scrollbar">
           {activeTab === 'fonte' ? (
             <FontTab element={selectedElement} onUpdate={onUpdate} />
           ) : activeTab === 'cor' ? (
@@ -114,14 +114,14 @@ function FontTab({ element, onUpdate }: { element: TextElement; onUpdate: (attrs
   const currentFont = FONTS.find(f => f.value === element.fontFamily) || FONTS[0];
 
   return (
-    <div className="space-y-4 md:space-y-6">
+    <div className="space-y-6">
       {/* Font Family Selector */}
-      <div className="space-y-2 relative" ref={dropdownRef}>
-        <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Fontes</label>
+      <div className="space-y-3 relative mb-6" ref={dropdownRef}>
+        <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] mb-2 block">Fontes</label>
         
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full bg-[#1a1a1a] border border-border rounded-xl px-3 md:px-4 py-2.5 md:py-3 flex items-center justify-between hover:border-accent transition-colors text-sm cursor-pointer"
+          className="w-full bg-[#1a1a1a] border border-border rounded-xl px-3 md:px-4 py-2.5 md:py-3 flex items-center justify-between hover:border-accent transition-colors text-sm cursor-pointer mt-1"
         >
           <span style={{ fontFamily: currentFont.value }}>{currentFont.name}</span>
           <ChevronDown size={16} className={cn("text-text-muted transition-transform duration-200", isOpen && "rotate-180")} />
@@ -162,24 +162,26 @@ function FontTab({ element, onUpdate }: { element: TextElement; onUpdate: (attrs
         </AnimatePresence>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 gap-5 md:gap-6 mb-6">
         {/* Font Size */}
-        <div className="space-y-2">
-          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] flex justify-between">
+        <div className="space-y-3">
+          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] flex justify-between mb-2">
             Tamanho <span>{Math.round(element.fontSize)}px</span>
           </label>
-          <Slider
-            min={10}
-            max={200}
-            value={element.fontSize}
-            onChange={(val) => onUpdate({ fontSize: val })}
-          />
+          <div className="mt-1">
+            <Slider
+              min={10}
+              max={200}
+              value={element.fontSize}
+              onChange={(val) => onUpdate({ fontSize: val })}
+            />
+          </div>
         </div>
 
         {/* Alignment */}
-        <div className="space-y-2">
-          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Alinhamento</label>
-          <div className="flex bg-[#1a1a1a] rounded-lg p-1 border border-border">
+        <div className="space-y-3">
+          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] mb-2 block">Alinhamento</label>
+          <div className="flex bg-[#1a1a1a] rounded-lg p-1 border border-border mt-1">
             <button 
               onClick={() => onUpdate({ align: 'left' })}
               className={cn("flex-1 p-1.5 md:p-2 rounded transition-colors", element.align === 'left' ? "bg-accent text-black" : "text-white/60 hover:bg-white/5")}
@@ -202,32 +204,36 @@ function FontTab({ element, onUpdate }: { element: TextElement; onUpdate: (attrs
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 gap-5 md:gap-6">
         {/* Letter Spacing */}
-        <div className="space-y-2">
-          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] flex justify-between">
+        <div className="space-y-3">
+          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] flex justify-between mb-2">
             Espaçamento <span>{element.letterSpacing}</span>
           </label>
-          <Slider
-            min={-10}
-            max={50}
-            value={element.letterSpacing}
-            onChange={(val) => onUpdate({ letterSpacing: val })}
-          />
+          <div className="mt-1">
+            <Slider
+              min={-10}
+              max={50}
+              value={element.letterSpacing}
+              onChange={(val) => onUpdate({ letterSpacing: val })}
+            />
+          </div>
         </div>
 
         {/* Line Height */}
-        <div className="space-y-2">
-          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] flex justify-between">
+        <div className="space-y-3">
+          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] flex justify-between mb-2">
             Altura da Linha <span>{element.lineHeight.toFixed(1)}</span>
           </label>
-          <Slider
-            min={0.5}
-            max={3}
-            step={0.1}
-            value={element.lineHeight}
-            onChange={(val) => onUpdate({ lineHeight: val })}
-          />
+          <div className="mt-1">
+            <Slider
+              min={0.5}
+              max={3}
+              step={0.1}
+              value={element.lineHeight}
+              onChange={(val) => onUpdate({ lineHeight: val })}
+            />
+          </div>
         </div>
       </div>
     </div>
