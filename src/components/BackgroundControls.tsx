@@ -3,7 +3,6 @@ import { TextElement } from '../types';
 import { HSV, hexToHsv, hsvToHex, isValidHex } from '../lib/colorUtils';
 import { cn } from '../lib/utils';
 import { SaturationBrightnessPicker, HueSlider } from './ColorControls';
-import Slider from './ui/Slider';
 
 interface BackgroundControlsProps {
   element: TextElement;
@@ -64,12 +63,12 @@ export default function BackgroundControls({ element, onUpdate }: BackgroundCont
         onEnd={handleEndDrag}
       />
 
-      <div className="flex items-center justify-between gap-4 max-w-full overflow-hidden">
-        <div className="space-y-1.5">
-          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Cor (HEX)</label>
-          <div className="flex items-center gap-2">
+      <div className="grid grid-cols-[auto_1fr] gap-4 md:gap-6 items-end">
+        <div className="space-y-2">
+          <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Cor do Fundo</label>
+          <div className="flex items-center gap-3">
             <div 
-              className="w-8 h-8 md:w-10 md:h-10 rounded-lg shadow-inner shrink-0"
+              className="w-8 h-8 md:w-10 md:h-10 rounded-lg border border-white/10 shadow-inner"
               style={{ backgroundColor: element.backgroundColor }}
             />
             <input
@@ -83,14 +82,14 @@ export default function BackgroundControls({ element, onUpdate }: BackgroundCont
                   addToRecent(val);
                 }
               }}
-              className="w-18 md:w-22 h-8 md:h-10 bg-[#1a1a1a] border border-border rounded-lg px-2 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:outline-none focus:border-accent transition-colors uppercase"
+              className="w-20 md:w-24 h-8 md:h-10 bg-[#1a1a1a] border border-border rounded-lg px-2 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:outline-none focus:border-accent transition-colors uppercase"
             />
           </div>
         </div>
 
-        <div className="space-y-1.5">
+        <div className="space-y-2 flex-1">
           <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Cores Recentes</label>
-          <div className="flex items-center gap-1.5">
+          <div className="flex gap-2">
             {recentColors.map((color, i) => (
               <button
                 key={`${color}-${i}`}
@@ -99,8 +98,8 @@ export default function BackgroundControls({ element, onUpdate }: BackgroundCont
                   addToRecent(color);
                 }}
                 className={cn(
-                  "w-8 h-8 md:w-10 md:h-10 rounded-lg transition-transform active:scale-90",
-                  element.backgroundColor === color ? "scale-110 z-10" : "hover:scale-105"
+                  "w-8 h-8 md:w-10 md:h-10 rounded-lg border border-white/5 transition-transform active:scale-90",
+                  element.backgroundColor === color && "ring-2 ring-accent ring-offset-2 ring-offset-[#111]"
                 )}
                 style={{ backgroundColor: color }}
               />
@@ -114,12 +113,14 @@ export default function BackgroundControls({ element, onUpdate }: BackgroundCont
           <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Opacidade</label>
           <span className="text-[10px] font-mono">{Math.round(element.backgroundOpacity * 100)}%</span>
         </div>
-        <Slider
-          min={0}
-          max={1}
-          step={0.01}
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
           value={element.backgroundOpacity}
-          onChange={(val) => onUpdate({ backgroundOpacity: val })}
+          onChange={(e) => onUpdate({ backgroundOpacity: parseFloat(e.target.value) })}
+          className="w-full accent-accent h-1"
         />
       </div>
 
@@ -129,11 +130,14 @@ export default function BackgroundControls({ element, onUpdate }: BackgroundCont
             <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Padding Horizontal</label>
             <span className="text-[10px] font-mono">{element.paddingX}px</span>
           </div>
-          <Slider
-            min={0}
-            max={100}
+          <input
+            type="range"
+            min="0"
+            max="100"
+            step="1"
             value={element.paddingX}
-            onChange={(val) => onUpdate({ paddingX: val })}
+            onChange={(e) => onUpdate({ paddingX: parseInt(e.target.value) })}
+            className="w-full accent-accent h-1"
           />
         </div>
 
@@ -142,11 +146,14 @@ export default function BackgroundControls({ element, onUpdate }: BackgroundCont
             <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Padding Vertical</label>
             <span className="text-[10px] font-mono">{element.paddingY}px</span>
           </div>
-          <Slider
-            min={0}
-            max={100}
+          <input
+            type="range"
+            min="0"
+            max="100"
+            step="1"
             value={element.paddingY}
-            onChange={(val) => onUpdate({ paddingY: val })}
+            onChange={(e) => onUpdate({ paddingY: parseInt(e.target.value) })}
+            className="w-full accent-accent h-1"
           />
         </div>
       </div>
@@ -156,11 +163,14 @@ export default function BackgroundControls({ element, onUpdate }: BackgroundCont
           <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Arredondamento</label>
           <span className="text-[10px] font-mono">{element.borderRadius}px</span>
         </div>
-        <Slider
-          min={0}
-          max={50}
+        <input
+          type="range"
+          min="0"
+          max="50"
+          step="1"
           value={element.borderRadius}
-          onChange={(val) => onUpdate({ borderRadius: val })}
+          onChange={(e) => onUpdate({ borderRadius: parseInt(e.target.value) })}
+          className="w-full accent-accent h-1"
         />
       </div>
     </div>
