@@ -43,36 +43,38 @@ export default function EditPanel({ selectedElement, onUpdate, onClose }: EditPa
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-        className="fixed bottom-20 left-1/2 -translate-x-1/2 w-full max-w-[480px] bg-panel-bg border border-border border-b-0 z-40 rounded-t-[24px] shadow-[0_-10px_30px_rgba(0,0,0,0.4)]"
+        className="fixed bottom-14 md:bottom-16 left-1/2 -translate-x-1/2 w-full max-w-[480px] bg-panel-bg/95 backdrop-blur-xl border border-border border-b-0 z-40 rounded-t-[20px] md:rounded-t-[24px] shadow-[0_-10px_30px_rgba(0,0,0,0.4)]"
       >
-        <div className="w-10 h-1 bg-[#333] rounded-[2px] mx-auto mt-3 mb-2" />
+        <div className="w-10 h-1 bg-[#333] rounded-[2px] mx-auto mt-2 md:mt-3 mb-1 md:mb-2" />
         
         {/* Tabs Header */}
-        <div className="flex overflow-x-auto no-scrollbar border-b border-white/5 px-4">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={cn(
-                "px-4 py-3 text-[11px] uppercase tracking-widest font-bold whitespace-nowrap transition-colors relative",
-                activeTab === tab.id ? "text-accent" : "text-text-muted hover:text-white/60"
-              )}
-            >
-              {tab.label}
-              {activeTab === tab.id && (
-                <motion.div 
-                  layoutId="activeTab"
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent"
-                />
-              )}
-            </button>
-          ))}
-          <button onClick={onClose} className="ml-auto p-3 text-text-muted hover:text-white">
-            <X size={18} />
+        <div className="flex items-center border-b border-white/5 px-2 md:px-4">
+          <div className="flex-1 flex overflow-x-auto no-scrollbar">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={cn(
+                  "px-3 md:px-4 py-2 md:py-3 text-[10px] md:text-[11px] uppercase tracking-widest font-bold whitespace-nowrap transition-colors relative",
+                  activeTab === tab.id ? "text-accent" : "text-text-muted hover:text-white/60"
+                )}
+              >
+                {tab.label}
+                {activeTab === tab.id && (
+                  <motion.div 
+                    layoutId="activeTab"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent"
+                  />
+                )}
+              </button>
+            ))}
+          </div>
+          <button onClick={onClose} className="p-2 md:p-3 text-text-muted hover:text-white shrink-0 border-l border-white/5 ml-1">
+            <X size={16} className="md:w-[18px] md:h-[18px]" />
           </button>
         </div>
 
-        <div className="p-6 h-[320px] overflow-y-auto custom-scrollbar">
+        <div className="p-4 md:p-6 h-[220px] md:h-[320px] overflow-y-auto custom-scrollbar">
           {activeTab === 'fonte' ? (
             <FontTab element={selectedElement} onUpdate={onUpdate} />
           ) : activeTab === 'cor' ? (
@@ -96,14 +98,14 @@ export default function EditPanel({ selectedElement, onUpdate, onClose }: EditPa
 
 function FontTab({ element, onUpdate }: { element: TextElement; onUpdate: (attrs: Partial<TextElement>) => void }) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Font Family Selector */}
       <div className="space-y-2">
         <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Fontes</label>
         <select
           value={element.fontFamily}
           onChange={(e) => onUpdate({ fontFamily: e.target.value })}
-          className="w-full bg-[#1a1a1a] border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-accent transition-colors text-sm appearance-none cursor-pointer"
+          className="w-full bg-[#1a1a1a] border border-border rounded-xl px-3 md:px-4 py-2.5 md:py-3 focus:outline-none focus:border-accent transition-colors text-sm appearance-none cursor-pointer"
         >
           {FONTS.map((f) => (
             <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
@@ -113,7 +115,7 @@ function FontTab({ element, onUpdate }: { element: TextElement; onUpdate: (attrs
         </select>
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 gap-4 md:gap-6">
         {/* Font Size */}
         <div className="space-y-2">
           <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] flex justify-between">
@@ -135,27 +137,27 @@ function FontTab({ element, onUpdate }: { element: TextElement; onUpdate: (attrs
           <div className="flex bg-[#1a1a1a] rounded-lg p-1 border border-border">
             <button 
               onClick={() => onUpdate({ align: 'left' })}
-              className={cn("flex-1 p-2 rounded transition-colors", element.align === 'left' ? "bg-accent text-black" : "text-white/60 hover:bg-white/5")}
+              className={cn("flex-1 p-1.5 md:p-2 rounded transition-colors", element.align === 'left' ? "bg-accent text-black" : "text-white/60 hover:bg-white/5")}
             >
-              <AlignLeft size={16} className="mx-auto" />
+              <AlignLeft size={14} className="md:w-4 md:h-4 mx-auto" />
             </button>
             <button 
               onClick={() => onUpdate({ align: 'center' })}
-              className={cn("flex-1 p-2 rounded transition-colors", element.align === 'center' ? "bg-accent text-black" : "text-white/60 hover:bg-white/5")}
+              className={cn("flex-1 p-1.5 md:p-2 rounded transition-colors", element.align === 'center' ? "bg-accent text-black" : "text-white/60 hover:bg-white/5")}
             >
-              <AlignCenter size={16} className="mx-auto" />
+              <AlignCenter size={14} className="md:w-4 md:h-4 mx-auto" />
             </button>
             <button 
               onClick={() => onUpdate({ align: 'right' })}
-              className={cn("flex-1 p-2 rounded transition-colors", element.align === 'right' ? "bg-accent text-black" : "text-white/60 hover:bg-white/5")}
+              className={cn("flex-1 p-1.5 md:p-2 rounded transition-colors", element.align === 'right' ? "bg-accent text-black" : "text-white/60 hover:bg-white/5")}
             >
-              <AlignRight size={16} className="mx-auto" />
+              <AlignRight size={14} className="md:w-4 md:h-4 mx-auto" />
             </button>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 gap-4 md:gap-6">
         {/* Letter Spacing */}
         <div className="space-y-2">
           <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px] flex justify-between">

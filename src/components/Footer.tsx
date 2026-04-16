@@ -16,7 +16,7 @@ export default function Footer({ onAddText, activeTab, setActiveTab }: FooterPro
   ];
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 h-20 bg-black border-t border-border flex items-center justify-around px-2 z-50">
+    <footer className="h-14 md:h-16 bg-black border-t border-border flex items-center justify-around px-2 z-50">
       {tabs.map((tab) => (
         <button
           key={tab.id}
@@ -25,12 +25,12 @@ export default function Footer({ onAddText, activeTab, setActiveTab }: FooterPro
             if (tab.action) tab.action();
           }}
           className={cn(
-            "flex flex-col items-center gap-1.5 px-4 py-2 transition-all duration-300",
+            "flex flex-col items-center gap-1 px-3 md:px-4 py-1 transition-all duration-300",
             activeTab === tab.id ? "text-accent" : "text-text-muted hover:text-white/70"
           )}
         >
-          <tab.icon size={24} />
-          <span className="text-[10px] font-medium uppercase tracking-[0.5px]">{tab.label}</span>
+          <tab.icon size={18} className="md:w-[20px] md:h-[20px]" />
+          <span className="text-[8px] md:text-[9px] font-medium uppercase tracking-[0.5px]">{tab.label}</span>
         </button>
       ))}
     </footer>

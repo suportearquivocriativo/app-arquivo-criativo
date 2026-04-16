@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Stage, Layer, Text, Transformer, Group, Rect, Path } from 'react-konva';
+import { Stage, Layer, Text, Transformer, Group, Rect, Path, Line } from 'react-konva';
 import { TextElement } from '../types';
 
 interface CanvasProps {
@@ -15,12 +15,14 @@ export default function Canvas({ elements, selectedId, onSelect, onChange, onDel
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [guides, setGuides] = useState<{ x: number | null, y: number | null }>({ x: null, y: null });
 
   useEffect(() => {
     const resize = () => {
       if (!containerRef.current) return;
       const container = containerRef.current;
-      const padding = 40;
+      const isMobile = window.innerWidth < 768;
+      const padding = isMobile ? 8 : 32;
       const availableWidth = container.clientWidth - padding;
       const availableHeight = container.clientHeight - padding;
       
@@ -51,8 +53,47 @@ export default function Canvas({ elements, selectedId, onSelect, onChange, onDel
 
   const editingElement = elements.find(el => el.id === editingId);
 
+  const handleDragMove = (e: any) => {
+    const node = e.target;
+    const stage = node.getStage();
+    const centerX = stage.width() / 2;
+    const centerY = stage.height() / 2;
+    
+    // Get the bounding box relative to the layer
+    const box = node.getClientRect({ relativeTo: node.getParent() });
+    const elementCenterX = box.x + box.width / 2;
+    const elementCenterY = box.y + box.height / 2;
+    
+    const SNAP_THRESHOLD = 5;
+    let guideX = null;
+    let guideY = null;
+
+    const diffX = elementCenterX - centerX;
+    const diffY = elementCenterY - centerY;
+
+    if (Math.abs(diffX) < SNAP_THRESHOLD) {
+      guideX = centerX;
+      node.x(node.x() - diffX);
+    }
+
+    if (Math.abs(diffY) < SNAP_THRESHOLD) {
+      guideY = centerY;
+      node.y(node.y() - diffY);
+    }
+
+    setGuides({ x: guideX, y: guideY });
+  };
+
+  const handleDragEnd = (id: string, e: any) => {
+    setGuides({ x: null, y: null });
+    onChange(id, {
+      x: e.target.x(),
+      y: e.target.y(),
+    });
+  };
+
   return (
-    <div ref={containerRef} className="flex-1 w-full flex items-center justify-center p-5 overflow-hidden bg-[#080808]">
+    <div ref={containerRef} className="flex-1 w-full flex items-center justify-center p-1 md:p-4 overflow-hidden bg-[#080808]">
       <div 
         className="relative shadow-[0_0_40px_rgba(0,0,0,0.5)] border border-border rounded-[4px] overflow-hidden bg-black"
         style={{ width: dimensions.width, height: dimensions.height }}
@@ -80,8 +121,30 @@ export default function Canvas({ elements, selectedId, onSelect, onChange, onDel
                 }}
                 onChange={(newAttrs) => onChange(el.id, newAttrs)}
                 onDelete={() => onDelete(el.id)}
+                onDragMove={handleDragMove}
+                onDragEnd={(e) => handleDragEnd(el.id, e)}
               />
             ))}
+            
+            {/* Alignment Guides */}
+            {guides.x !== null && (
+              <Line
+                points={[guides.x, 0, guides.x, dimensions.height]}
+                stroke="#E7D1B0"
+                strokeWidth={1}
+                dash={[4, 4]}
+                opacity={0.5}
+              />
+            )}
+            {guides.y !== null && (
+              <Line
+                points={[0, guides.y, dimensions.width, guides.y]}
+                stroke="#E7D1B0"
+                strokeWidth={1}
+                dash={[4, 4]}
+                opacity={0.5}
+              />
+            )}
           </Layer>
         </Stage>
 
@@ -108,9 +171,11 @@ interface TextItemProps {
   onEdit: () => void;
   onChange: (attrs: Partial<TextElement>) => void;
   onDelete: () => void;
+  onDragMove: (e: any) => void;
+  onDragEnd: (e: any) => void;
 }
 
-function TextItem({ element, isSelected, isEditing, onSelect, onEdit, onChange, onDelete }: TextItemProps) {
+function TextItem({ element, isSelected, isEditing, onSelect, onEdit, onChange, onDelete, onDragMove, onDragEnd }: TextItemProps) {
   const shapeRef = useRef<any>(null);
   const trRef = useRef<any>(null);
   const textRef = useRef<any>(null);
@@ -205,12 +270,8 @@ function TextItem({ element, isSelected, isEditing, onSelect, onEdit, onChange, 
         onTap={onSelect}
         onDblClick={onEdit}
         onDblTap={onEdit}
-        onDragEnd={(e) => {
-          onChange({
-            x: e.target.x(),
-            y: e.target.y(),
-          });
-        }}
+        onDragMove={onDragMove}
+        onDragEnd={onDragEnd}
         onTransformEnd={handleTransform}
         x={element.x}
         y={element.y}

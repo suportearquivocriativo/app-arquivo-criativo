@@ -60,7 +60,7 @@ export default function App() {
     <div className="flex flex-col h-screen bg-black text-white overflow-hidden">
       <Header stageRef={stageRef} />
       
-      <main className="flex-1 flex flex-col pt-16 pb-20 relative">
+      <main className="flex-1 flex flex-col relative overflow-hidden">
         <Canvas 
           elements={elements}
           selectedId={selectedId}

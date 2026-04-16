@@ -52,7 +52,7 @@ export function SaturationBrightnessPicker({ hsv, onChange, onEnd }: { hsv: HSV,
   return (
     <div 
       ref={pickerRef}
-      className="relative w-full h-40 rounded-xl cursor-crosshair overflow-hidden"
+      className="relative w-full h-28 md:h-40 rounded-xl cursor-crosshair overflow-hidden"
       style={{ backgroundColor: `hsl(${hsv.h}, 100%, 50%)` }}
       onMouseDown={(e) => { handleMove(e); startDragging(); }}
       onTouchStart={(e) => { handleMove(e); startDragging(); }}
@@ -182,7 +182,7 @@ export default function ColorControls({ element, onUpdate }: ColorControlsProps)
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <SaturationBrightnessPicker 
         hsv={hsv} 
         onChange={handleColorChange} 
@@ -195,12 +195,12 @@ export default function ColorControls({ element, onUpdate }: ColorControlsProps)
         onEnd={handleEndDrag}
       />
 
-      <div className="grid grid-cols-[auto_1fr] gap-6 items-end">
+      <div className="grid grid-cols-[auto_1fr] gap-4 md:gap-6 items-end">
         <div className="space-y-2">
           <label className="text-[10px] text-text-muted uppercase font-medium tracking-[0.5px]">Cor (HEX)</label>
           <div className="flex items-center gap-3">
             <div 
-              className="w-10 h-10 rounded-lg border border-white/10 shadow-inner"
+              className="w-8 h-8 md:w-10 md:h-10 rounded-lg border border-white/10 shadow-inner"
               style={{ backgroundColor: element.fill }}
             />
             <input
@@ -214,7 +214,7 @@ export default function ColorControls({ element, onUpdate }: ColorControlsProps)
                   addToRecent(val);
                 }
               }}
-              className="w-24 bg-[#1a1a1a] border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent transition-colors uppercase"
+              className="w-20 md:w-24 bg-[#1a1a1a] border border-border rounded-lg px-2 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:outline-none focus:border-accent transition-colors uppercase"
             />
           </div>
         </div>
