@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { doc, onSnapshot, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, onSnapshot, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 import { auth, db, handleFirestoreError, OperationType } from '../firebase';
 
 interface UserProfile {
@@ -49,11 +49,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (currentUser) {
         const userDocRef = doc(db, 'users', currentUser.uid);
         
-        // Listen for profile changes
-        const unsubscribeProfile = onSnapshot(userDocRef, (docSnap) => {
-          if (docSnap.exists()) {
-            setProfile(docSnap.data() as UserProfile);
-          } else {
+        try {
+          // Check if profile exists
+          const docSnap = await getDoc(userDocRef);
+          
+          if (!docSnap.exists()) {
+            console.log("Usuário não encontrado, criando no Firestore...");
             // Profile doesn't exist, create it (default values)
             const newProfile: UserProfile = {
               uid: currentUser.uid,
@@ -63,9 +64,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               createdAt: serverTimestamp(),
             };
             
-            setDoc(userDocRef, newProfile).catch(err => {
-              handleFirestoreError(err, OperationType.CREATE, `users/${currentUser.uid}`);
-            });
+            await setDoc(userDocRef, newProfile);
+            console.log("Usuário criado com sucesso");
+          } else {
+            setProfile(docSnap.data() as UserProfile);
+          }
+        } catch (err) {
+          console.error("Erro ao verificar/criar perfil:", err);
+          handleFirestoreError(err, OperationType.GET, `users/${currentUser.uid}`);
+        }
+
+        // Listen for profile changes (Real-time updates for isPaid or role)
+        const unsubscribeProfile = onSnapshot(userDocRef, (snap) => {
+          if (snap.exists()) {
+            setProfile(snap.data() as UserProfile);
           }
           setLoading(false);
         }, (err) => {
