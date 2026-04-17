@@ -1,8 +1,10 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { X, AlignLeft, AlignCenter, AlignRight, ChevronDown } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { TextElement, TabId } from '../types';
 import { cn } from '../lib/utils';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { db, handleFirestoreError, OperationType } from '../firebase';
 import ColorControls from './ColorControls';
 import StrokeControls from './StrokeControls';
 import ShadowControls from './ShadowControls';
@@ -15,7 +17,7 @@ interface EditPanelProps {
   onClose: () => void;
 }
 
-const FONTS = [
+const DEFAULT_FONTS = [
   { name: 'Helvetica Neue', value: "'Helvetica Neue', Arial, sans-serif" },
   { name: 'Inter', value: "'Inter', sans-serif" },
   { name: 'Georgia', value: 'Georgia, serif' },
@@ -26,6 +28,36 @@ const FONTS = [
 
 export default function EditPanel({ selectedElement, onUpdate, onClose }: EditPanelProps) {
   const [activeTab, setActiveTab] = useState<TabId>('fonte');
+  const [customFonts, setCustomFonts] = useState<{name: string, value: string}[]>([]);
+
+  useEffect(() => {
+    const q = query(collection(db, 'fonts'), orderBy('uploadedAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fontsData = snapshot.docs.map(doc => {
+        const data = doc.data();
+        const fontName = data.name;
+        const fontUrl = data.url;
+        
+        // Dynamically load font face
+        const fontFace = new FontFace(fontName, `url(${fontUrl})`);
+        fontFace.load().then((loadedFace) => {
+          document.fonts.add(loadedFace);
+        }).catch(err => console.error(`Error loading font ${fontName}:`, err));
+
+        return {
+          name: fontName,
+          value: `"${fontName}", sans-serif`
+        };
+      });
+      setCustomFonts(fontsData);
+    }, (err) => {
+      handleFirestoreError(err, OperationType.LIST, 'fonts');
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const allFonts = useMemo(() => [...DEFAULT_FONTS, ...customFonts], [customFonts]);
 
   if (!selectedElement) return null;
 
@@ -77,7 +109,7 @@ export default function EditPanel({ selectedElement, onUpdate, onClose }: EditPa
 
         <div className="px-8 py-4 md:px-10 md:py-6 h-[220px] md:h-[320px] overflow-y-auto custom-scrollbar">
           {activeTab === 'fonte' ? (
-            <FontTab element={selectedElement} onUpdate={onUpdate} />
+            <FontTab element={selectedElement} onUpdate={onUpdate} fonts={allFonts} />
           ) : activeTab === 'cor' ? (
             <ColorControls element={selectedElement} onUpdate={onUpdate} />
           ) : activeTab === 'contorno' ? (
@@ -97,7 +129,7 @@ export default function EditPanel({ selectedElement, onUpdate, onClose }: EditPa
   );
 }
 
-function FontTab({ element, onUpdate }: { element: TextElement; onUpdate: (attrs: Partial<TextElement>) => void }) {
+function FontTab({ element, onUpdate, fonts }: { element: TextElement; onUpdate: (attrs: Partial<TextElement>) => void; fonts: {name: string, value: string}[] }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -111,7 +143,7 @@ function FontTab({ element, onUpdate }: { element: TextElement; onUpdate: (attrs
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const currentFont = FONTS.find(f => f.value === element.fontFamily) || FONTS[0];
+  const currentFont = fonts.find(f => f.value === element.fontFamily) || fonts[0];
 
   return (
     <div className="space-y-6">
@@ -136,7 +168,7 @@ function FontTab({ element, onUpdate }: { element: TextElement; onUpdate: (attrs
               className="absolute top-full left-0 right-0 mt-2 bg-[#111111] border border-border rounded-xl shadow-2xl z-[60] overflow-hidden"
             >
               <div className="max-h-[200px] overflow-y-auto custom-scrollbar py-2">
-                {FONTS.map((f) => (
+                {fonts.map((f) => (
                   <button
                     key={f.value}
                     onClick={() => {

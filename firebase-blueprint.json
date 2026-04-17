@@ -1,0 +1,39 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User account information and permissions",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Unique user identifier from Auth" },
+        "email": { "type": "string", "format": "email", "description": "User email address" },
+        "isPaid": { "type": "boolean", "description": "Whether the user has paid for access" },
+        "role": { "type": "string", "enum": ["user", "admin"], "description": "User permission level" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Account creation timestamp" }
+      },
+      "required": ["uid", "email", "isPaid", "role", "createdAt"]
+    },
+    "Font": {
+      "title": "Font",
+      "description": "Custom font metadata and source",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Document ID" },
+        "name": { "type": "string", "description": "Display name of the font" },
+        "url": { "type": "string", "format": "uri", "description": "URL to the font file (Storage or external)" },
+        "uploadedAt": { "type": "string", "format": "date-time", "description": "Upload timestamp" }
+      },
+      "required": ["name", "url", "uploadedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": "UserProfile",
+      "description": "Storage for user profiles"
+    },
+    "/fonts/{fontId}": {
+      "schema": "Font",
+      "description": "Storage for shared custom fonts"
+    }
+  }
+}

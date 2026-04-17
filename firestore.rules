@@ -1,0 +1,103 @@
+rules_version = '2';
+
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: users
+// Document ID: {uid}
+// Fields:
+//   - uid: string (required) - Auth UID
+//   - email: string (required) - User email
+//   - isPaid: bool (required) - Payment status
+//   - role: string (required) - 'user' or 'admin'
+//   - createdAt: timestamp (required) - Creation time
+//
+// Collection: fonts
+// Document ID: {fontId}
+// Fields:
+//   - name: string (required, < 100 chars) - Font display name
+//   - url: string (required, valid URL) - Font source URL
+//   - uploadedAt: timestamp (required) - Upload time
+//
+// ===============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         (request.auth.token.email == "adm.rafaelah@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidUrl(url) {
+      return url is string && (url.matches("^https://.*") || url.matches("^http://.*"));
+    }
+
+    function isRecent(time) {
+      return time is timestamp && math.abs(request.time.toMillis() - time.toMillis()) < 5 * 60 * 1000;
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'isPaid', 'role', 'createdAt']) &&
+             data.keys().hasOnly(['uid', 'email', 'isPaid', 'role', 'createdAt']) &&
+             data.uid == request.auth.uid &&
+             data.email == request.auth.token.email &&
+             data.isPaid is bool &&
+             data.role in ['user', 'admin'] &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidFont(data) {
+      return data.keys().hasAll(['name', 'url', 'uploadedAt']) &&
+             data.keys().hasOnly(['name', 'url', 'uploadedAt']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             isValidUrl(data.url) &&
+             data.uploadedAt is timestamp;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // Users can only create their own profile with 'user' role and 'isPaid' false initially (unless admin)
+      allow create: if isOwner(userId) && isValidUser(request.resource.data) && 
+                      (request.resource.data.role == 'user' && request.resource.data.isPaid == false || isAdmin());
+      
+      // Users can't update their own role or isPaid status (unless admin)
+      allow update: if isAuthenticated() && isValidUser(request.resource.data) && 
+                      ((isOwner(userId) && 
+                        request.resource.data.role == resource.data.role && 
+                        request.resource.data.isPaid == resource.data.isPaid) || isAdmin());
+    }
+
+    match /fonts/{fontId} {
+      allow read: if isAuthenticated(); // All logged in users can see fonts
+      allow create, update, delete: if isAdmin() && isValidFont(request.resource.data);
+    }
+  }
+}
