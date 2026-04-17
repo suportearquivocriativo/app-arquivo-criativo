@@ -15,7 +15,7 @@ const firebaseConfig = {
 const hasConfig = !!firebaseConfig.apiKey;
 
 if (!hasConfig) {
-  console.warn("Firebase configuration is missing. Please add your VITE_FIREBASE_* keys to the AI Studio Secrets.");
+  console.warn("Firebase configuration is missing. Please add your VITE_FIREBASE_* keys to the environment variables.");
 }
 
 // Initialize Firebase only if config is present to avoid immediate crash
@@ -24,7 +24,7 @@ export const auth = hasConfig ? getAuth(app) : ({} as any);
 export const db = hasConfig ? getFirestore(app, import.meta.env.VITE_FIREBASE_DATABASE_ID || undefined) : ({} as any);
 export const storage = hasConfig ? getStorage(app) : ({} as any);
 
-// Validation check
+// Validation check for diagnostics
 async function testConnection() {
   if (!hasConfig) return;
   try {
@@ -35,10 +35,7 @@ async function testConnection() {
     if (error instanceof Error && error.message.includes('the client is offline')) {
       console.error("Firebase connection failed: The client is offline.");
       console.error("This usually means the VITE_FIREBASE_* environment variables are invalid or pointing to a non-existent project.");
-      console.error("Please verify your Firebase Project ID and API Key in Settings > Secrets.");
     } else {
-      // Ignore other errors like 'permission-denied' from the test document, 
-      // as reaching the server (even with a permission error) confirms connectivity.
       console.log("Firebase server reached (connection verified).");
     }
   }
